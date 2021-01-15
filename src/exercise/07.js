@@ -2,9 +2,30 @@
 // http://localhost:3000/isolated/exercise/07.js
 
 import React from 'react'
-// 🐨 you're going to need the reportProfile function
-// 💰 here, let me help you with that...
-// import reportProfile from '../report-profile'
+import reportProfile from '../report-profile'
+import {unstable_trace as trace} from 'scheduler/tracing'
+
+function Greeting() {
+  const [greeting, setGreeting] = React.useState()
+
+  function handleSubmit(event) {
+    event.preventDefault()
+    const name = event.target.elements.name.value
+    trace('form submitted', performance.now(), () => {
+      setGreeting(`Hello ${name}`)
+    })
+  }
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="name">Name:</label>
+        <input id="name" />
+      </form>
+      <div>{greeting}</div>
+    </div>
+  )
+}
 
 function Counter() {
   const [count, setCount] = React.useState(0)
@@ -15,15 +36,12 @@ function Counter() {
 function App() {
   return (
     <div>
-      {/*
-      🐨 Wrap this div in a React.Profile component
-      give it the ID of "counter" and pass reportProfile
-      to the onRender prop.
-      */}
-      <div>
-        Profiled counter
-        <Counter />
-      </div>
+      <React.Profiler id="counter" onRender={reportProfile}>
+        <div>
+          Profiled counter
+          <Counter />
+        </div>
+      </React.Profiler>
       <div>
         Unprofiled counter
         <Counter />
